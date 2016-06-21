@@ -16,27 +16,106 @@
 //
 //===----------------------------------------------------------------------===//
 //
+#if os(Linux)
+    import SwiftGlibc
+    import LinuxBridge
+#else
+    import Darwin
+#endif
 
 /// Placeholder functions for logging system
-public struct Log {
+public struct Log:SysLogProtocol {
 	
-	static func info(message msg: String) {
-		print(msg)
-	}
 	
-	static func warning(message msg: String) {
-		print(msg)
-	}
-	
-	static func error(message msg: String) {
-		print(msg)
-	}
-	
-	static func critical(message msg: String) {
-		print(msg)
-	}
-	@noreturn
-	static func terminal(message msg: String) {
-		fatalError(msg)		
-	}
+}
+
+
+protocol LogProtocol {
+    
+    static func perfectSyslog(priority p: Int32, _ msg: String, _ args: CVarArg...)
+    
+    static func info(message msg: Any...)
+    
+    static func warning(message msg: CustomStringConvertible, _ args: CVarArg...)
+    
+    static func error(message msg: CustomStringConvertible, _ args: CVarArg...)
+    
+    static func critical(message msg: CustomStringConvertible, _ args: CVarArg...)
+    
+    @noreturn
+    static func terminal(message msg: CustomStringConvertible, _ args: CVarArg...)
+}
+
+protocol SysLogProtocol: LogProtocol {
+    
+}
+
+extension SysLogProtocol {
+    
+    static func currLog() -> String { return "syslog" }
+    
+    static func perfectSyslog(priority p: Int32, _ msg: String, _ args: CVarArg...) {
+        withVaList(args) { vsyslog(p, msg, $0) }
+    }
+    
+    static func info(message msg: Any...) {
+        perfectSyslog(priority: LOG_INFO, msg.description)
+    }
+    
+    static func warning(message msg: CustomStringConvertible, _ args: CVarArg...) {
+        perfectSyslog(priority: LOG_WARNING, msg.description)
+    }
+    
+    static func error(message msg: CustomStringConvertible, _ args: CVarArg...) {
+        perfectSyslog(priority: LOG_ERR, msg.description)
+    }
+    /*
+     static func error(message msg: String, _ args: CVarArg...) {
+     perfectSyslog(priority: LOG_ERR, msg)
+     }
+     */
+    static func critical(message msg: CustomStringConvertible, _ args: CVarArg...) {
+        perfectSyslog(priority: LOG_CRIT, msg.description)
+    }
+    @noreturn
+    static func terminal(message msg: CustomStringConvertible, _ args: CVarArg...) {
+        perfectSyslog(priority: LOG_EMERG, msg.description)
+        fatalError(msg.description)
+    }
+}
+
+protocol PrintLogProtocol: LogProtocol {
+    
+}
+
+extension PrintLogProtocol {
+    
+    static func perfectPrintLog(priority p: Int32, _ msg: String, _ args: CVarArg...) {
+        withVaList(args) { vsyslog(p, msg, $0) }
+    }
+    
+    static func info(message msg: Any...) {
+        perfectPrintLog(priority: LOG_INFO, msg.description)
+    }
+    
+    static func warning(message msg: CustomStringConvertible, _ args: CVarArg...) {
+        perfectPrintLog(priority: LOG_WARNING, msg.description)
+    }
+    
+    static func error(message msg: CustomStringConvertible, _ args: CVarArg...) {
+        perfectPrintLog(priority: LOG_ERR, msg.description)
+    }
+    /*
+     static func error(message msg: String, _ args: CVarArg...) {
+     perfectSyslog(priority: LOG_ERR, msg)
+     }
+     */
+    static func critical(message msg: CustomStringConvertible, _ args: CVarArg...) {
+        perfectPrintLog(priority: LOG_CRIT, msg.description)
+    }
+    @noreturn
+    static func terminal(message msg: CustomStringConvertible, _ args: CVarArg...) {
+        perfectPrintLog(priority: LOG_EMERG, msg.description)
+        fatalError(msg.description)
+    }
 }
