@@ -18,18 +18,36 @@
 //
 
 /// Provides access to all incoming request data. Handles the following tasks:
-/// - Parsing the incoming HTTP request
-/// - Providing access to all HTTP headers & cookies
-/// - Providing access to all meta headers which may have been added by the web server
-/// - Providing access to GET & POST arguments
-/// - Providing access to any file upload data
-/// - Establishing the document root, from which response files are located
+///
+/// * Parsing the incoming HTTP request
+/// * Providing access to all HTTP headers & cookies
+/// * Providing access to all meta headers which may have been added by the web server
+/// * Providing access to GET & POST arguments
+/// * Providing access to any file upload data
+/// * Establishing the document root, from which response files are located
 ///
 /// Access to the current WebRequest object is generally provided through the corresponding WebResponse object
 public class WebRequest {
-
+    /// HTTP request method types
     public enum Method: Hashable, CustomStringConvertible {
-        case options, get, head, post, put, delete, trace, connect, custom(String)
+        /// OPTIONS
+        case options,
+        /// GET
+        get,
+        /// HEAD
+        head,
+        /// POST
+        post,
+        /// PUT
+        put,
+        /// DELETE
+        delete,
+        /// TRACE
+        trace,
+        /// CONNECT
+        connect,
+        /// Any unaccounted for or custom method
+        custom(String)
         
         static func methodFrom(string: String) -> Method {
             
@@ -46,10 +64,12 @@ public class WebRequest {
             }
         }
         
+        /// Method String hash value
         public var hashValue: Int {
             return self.description.hashValue
         }
         
+        /// The method as a String
         public var description: String {
             switch self {
             case .options:  return "OPTIONS"
@@ -71,6 +91,7 @@ public class WebRequest {
         self.connection = c
     }
     
+    /// The web server's document root
 	public lazy var documentRoot: String = {
         let c = self.connection
         if let root = c.requestParams["PERFECTSERVER_DOCUMENT_ROOT"] {
@@ -330,9 +351,10 @@ public class WebRequest {
 	/// Returns the raw request parameter header
 	public func rawHeader(named: String) -> String? { return self.connection.requestParams[named] }
 	/// Returns a Dictionary containing all raw request parameters.
-	public func raw() -> Dictionary<String, String> { return self.connection.requestParams }
+    public var rawHeaders: [String:String] { return self.connection.requestParams }
 }
 
+/// Compare two request methods
 public func == (lhs: WebRequest.Method, rhs: WebRequest.Method) -> Bool {
     return lhs.description == rhs.description
 }

@@ -1,16 +1,23 @@
 # Perfect: Server-Side Swift
-![Perfect logo](http://www.perfect.org/images/perfect-git-banner.png)
+[![Perfect logo](http://www.perfect.org/images/perfect-git-banner.png)](http://perfect.org/get-involved.html)
 
 [![Swift 3.0](https://img.shields.io/badge/Swift-3.0-orange.svg?style=flat)](https://developer.apple.com/swift/)
 [![Platforms OS X | Linux](https://img.shields.io/badge/Platforms-OS%20X%20%7C%20Linux%20-lightgray.svg?style=flat)](https://developer.apple.com/swift/)
 [![License Apache](https://img.shields.io/badge/License-Apache-lightgrey.svg?style=flat)](http://perfect.org/licensing.html)
-[![Docs](https://img.shields.io/badge/docs-83%-yellow.svg?style=flat)](http://www.perfect.org/docs/)
+[![Docs](https://img.shields.io/badge/docs-99%25-yellow.svg?style=flat)](http://www.perfect.org/docs/)
 [![Issues](https://img.shields.io/github/release/qubyte/rubidium.svg)](https://github.com/PerfectlySoft/Perfect/issues)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat)](https://paypal.me/perfectlysoft)
 [![Twitter](https://img.shields.io/badge/Twitter-@PerfectlySoft-brightgreen.svg?style=flat)](http://twitter.com/PerfectlySoft)
 [![Join the chat at https://gitter.im/PerfectlySoft/Perfect](https://img.shields.io/badge/Gitter-Join%20Chat-brightgreen.svg)](https://gitter.im/PerfectlySoft/Perfect?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-**The master branch of this project currently compiles with the 3.0 *DEVELOPMENT-SNAPSHOT-2016-06-06-a* toolchain using Swift Package Manager.**
+**The master branch of this project currently compiles with *Swift 3.0 Preview 1* released June 13, 2016 using Swift Package Manager.**
+
+**Important:** On OS X you must set the Xcode command line tools preference as follows:
+![Xcode Prefs](assets/xcode_prefs.png) 
+
+If you do not do this you will experience compile time errors when using SPM on the command line.
+
+--
 
 Perfect is an application server for Linux or OS X which provides a framework for developing web and other REST services in the Swift programming language. Its primary focus is on facilitating mobile apps which require backend server software, enabling you to use one language for both front and back ends.
 
@@ -31,7 +38,7 @@ swift --version
 should produce something like the following:
 
 ```
-Apple Swift version 3.0-dev (LLVM 3863c393d9, Clang d03752fe45, Swift e996f0c248)
+Apple Swift version 3.0 (swiftlang-800.0.30 clang-800.0.24)
 Target: x86_64-apple-macosx10.9
 ```
 
@@ -50,10 +57,10 @@ brew link openssl --force
 ```
 
 ### Linux
-Perfect relies on OpenSSL:
+Perfect relies on OpenSSL and uuid:
 
 ```
-sudo apt-get install openssl
+sudo apt-get install openssl uuid-dev
 ```
 
 ### Build Starter Project
@@ -86,6 +93,95 @@ swift package generate-xcodeproj
 ```
 
 Open the generated file "PerfectTemplate.xcodeproj". Ensure that you have selected the executable target and selected it to run on "My Mac". You can now run and debug the server.
+
+## Next Steps
+
+These example snippets show how to accomplish several common tasks that one might need to do when developing a Web/REST application. In all cases, the ```request``` and ```response``` variables refer, respectively, to the ```WebRequest``` and ```WebResponse``` objects which are given to your URL handlers.
+
+Consult the [API reference](http://www.perfect.org/docs/) for more details.
+
+### Get a client request header
+
+```swift
+if let acceptEncoding = request.header(named: "Accept-Encoding") {
+	...
+}
+// Many common HTTP request headers have their own accessors
+if let acceptEncoding2 = request.httpAcceptEncoding {
+	...
+}
+```
+
+### Get client GET or POST parameters
+
+```swift
+if let foo = request.param(name: "foo") {
+	...
+}   
+if let foo = request.param(name: "foo", defaultValue: "default foo") {
+	...
+}
+let foos: [String] = request.params(named: "foo")
+```
+
+### Get the current request URI
+
+```swift
+if let uri = request.requestURI {
+	...        
+}
+```
+
+### Access the server's document directory and return an image file to the client
+
+```swift
+let docRoot = request.documentRoot
+do {
+    let mrPebbles = File("\(docRoot)/mr_pebbles.jpg")
+    let imageSize = mrPebbles.size
+    let imageBytes = try mrPebbles.readSomeBytes(count: imageSize)
+    response.replaceHeader(name: "Content-Type", value: MimeType.forExtension("jpg"))
+    response.replaceHeader(name: "Content-Length", value: "\(imageBytes.count)")
+    response.appendBody(bytes: imageBytes)
+} catch {
+    response.setStatus(code: 500, message: "Internal Server Error")
+    response.appendBody(string: "Error handling request: \(error)")
+}
+response.requestCompleted()
+```
+
+### Get client cookies
+
+```swift
+for (cookieName, cookieValue) in request.cookies {
+	...
+}
+```
+
+### Set client cookie
+
+```swift
+let cookie = Cookie(name: "cookie-name", value: "the value", domain: nil,
+                    expires: .session, path: "/",
+                    secure: false, httpOnly: false)
+response.addCookie(cookie: cookie)
+```
+
+### Return JSON data to client
+
+```swift
+response.replaceHeader(name: "Content-Type", value: "application/json")
+let dict: [String:Any] = ["a":1, "b":0.1, "c": true, "d":[2, 4, 5, 7, 8]]
+    
+do {
+	let jsonString = try dict.jsonEncodedString()
+	response.appendBody(string: jsonString)
+} catch {
+	...
+}
+response.requestCompleted()
+```
+*This snippet uses the built-in JSON encoding. Feel free to bring in your own favorite JSON encoder/decoder.*
 
 ## Repository Layout
 

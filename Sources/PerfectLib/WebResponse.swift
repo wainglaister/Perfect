@@ -21,20 +21,38 @@ import PerfectThread
 
 /// This class bundles together the values which will be used to set a cookie in the outgoing response
 public struct Cookie {
+    /// Cookie expiration type
+    public enum Expiration {
+        /// Session cookie with no explicit expiration
+        case session
+        /// Expiratiuon in a number of seconds from now
+        case relativeSeconds(Int)
+        /// Expiration at an absolute time given in seconds from epoch
+        case absoluteSeconds(Int)
+        /// Custom expiration date string
+        case absoluteDate(String)
+    }
+    
+    /// Cookie name
 	public let name: String?
+    /// Cookie value
 	public let value: String?
+    /// Cookie domain
 	public let domain: String?
-	public let expires: String?
-	public let expiresIn: Double // seconds from now. may be negative. 0.0 means no expiry (session cookie)
+    /// Cookie expiration
+	public let expires: Expiration?
+    /// Cookie path
 	public let path: String?
+    /// Cookie secure flag
 	public let secure: Bool?
+    /// Cookie http only flag
 	public let httpOnly: Bool?
 
+    /// Cookie public initializer
 	public init(name: String?,
 		value: String?,
 		domain: String?,
-		expires: String?,
-		expiresIn: Double,
+		expires: Expiration?,
 		path: String?,
 		secure: Bool?,
 		httpOnly: Bool?) {
@@ -42,7 +60,6 @@ public struct Cookie {
 			self.value = value
 			self.domain = domain
 			self.expires = expires
-			self.expiresIn = expiresIn
 			self.path = path
 			self.secure = secure
 			self.httpOnly = httpOnly
@@ -50,9 +67,10 @@ public struct Cookie {
 }
 
 /// Represents an outgoing web response. Handles the following tasks:
-/// - Collecting HTTP response headers & cookies.
-/// - Locating the response template file, parsing it, evaluating it and returning the resulting data.
-/// - Provides access to the WebRequest object.
+///
+/// * Collecting HTTP response headers & cookies.
+/// * Locating the response template file, parsing it, evaluating it and returning the resulting data.
+/// * Provides access to the WebRequest object.
 public class WebResponse {
 
 	var connection: WebConnection
@@ -72,6 +90,7 @@ public class WebResponse {
 	var chunkedStarted = false
 	var wroteHeaders = false
 	
+    /// Called by handlers to complete the current request.
 	public var requestCompleted: () -> () = {}
 
 	init(_ c: WebConnection, request: WebRequest) {
@@ -89,18 +108,18 @@ public class WebResponse {
 		return self.connection.getStatus()
 	}
 
-	/// Adds the cookie object to the response
+	/// Adds the cookie object to the response.
 	public func addCookie(cookie cooky: Cookie) {
 		self.cookiesArray.append(cooky)
 	}
 
-	/// Appends the given bytes to the outgoing content body
+	/// Appends the given bytes to the outgoing content body.
 	public func appendBody(bytes b: [UInt8]) {
 		self.bodyData.append(contentsOf: b)
 	}
 	
-	/// Appends the given string to the outgoing content body
-	/// String is converted to UTF8 bytes
+	/// Appends the given string to the outgoing content body.
+	/// String is converted to UTF8 bytes.
 	public func appendBody(string s: String) {
 		self.bodyData.append(contentsOf: [UInt8](s.utf8))
 	}
@@ -197,18 +216,18 @@ public class WebResponse {
 		Routing.handleRequest(self.request, response: self)
 	}
 
-	/// Perform a 302 redirect to the given url
+	/// Perform a 302 redirect to the given url.
 	public func redirectTo(url: String) {
 		self.setStatus(code: 302, message: "FOUND")
 		self.replaceHeader(name: "Location", value: url)
 	}
 
-	/// Add an outgoing HTTP header
+	/// Add an outgoing HTTP header.
 	public func addHeader(name n: String, value: String) {
 		self.headersArray.append( (n, value) )
 	}
 
-	/// Set a HTTP header, replacing all existing instances of said header
+	/// Set a HTTP header, replacing all existing instances of said header.
 	public func replaceHeader(name n: String, value: String) {
 		for i in 0..<self.headersArray.count {
 			if self.headersArray[i].0 == n {
@@ -218,7 +237,7 @@ public class WebResponse {
 		self.addHeader(name: n, value: value)
 	}
 
-	// queues headers to be written with the first body chunk
+	// queues headers to be written with the first body chunk.
 	func writeHeaders() {
 		
 		guard !wroteHeaders else {
@@ -248,11 +267,24 @@ public class WebResponse {
 				cookieLine.append(cookie.name!.stringByEncodingURL)
 				cookieLine.append("=")
 				cookieLine.append(cookie.value!.stringByEncodingURL)
-				if cookie.expiresIn != 0.0 {
-					let formattedDate = try! formatDate(now + secondsToICUDate(Int(cookie.expiresIn)*60),
-					                                    format: "%a, %d-%b-%Y %T GMT", timezone: "GMT")
-					cookieLine.append(";expires=" + formattedDate)
-				}
+                
+                if let expires = cookie.expires {
+                    switch expires {
+                    case .session: ()
+                    case .absoluteDate(let date):
+                        cookieLine.append(";expires=" + date)
+                    case .absoluteSeconds(let seconds):
+                        let formattedDate = try! formatDate(secondsToICUDate(seconds*60),
+                                                            format: "%a, %d-%b-%Y %T GMT",
+                                                            timezone: "GMT")
+                        cookieLine.append(";expires=" + formattedDate)
+                    case .relativeSeconds(let seconds):
+                        let formattedDate = try! formatDate(now + secondsToICUDate(seconds*60),
+                                                            format: "%a, %d-%b-%Y %T GMT",
+                                                            timezone: "GMT")
+                        cookieLine.append(";expires=" + formattedDate)
+                    }
+                }
 				if let path = cookie.path {
 					cookieLine.append("; path=" + path)
 				}

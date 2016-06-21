@@ -72,7 +72,8 @@ public class File {
             if res != -1 {
                 ary.removeLast(maxPath - res)
                 let trailPath = UTF8Encoding.encode(bytes: ary)
-                if trailPath[trailPath.startIndex] != "/" && trailPath[trailPath.startIndex] != "." {
+                let lastChar = trailPath[trailPath.startIndex]
+                if lastChar != "/" && lastChar != "." {
                     return internalPath.stringByDeletingLastPathComponent + "/" + trailPath
                 }
                 return trailPath
@@ -222,6 +223,7 @@ public extension File {
     /// - parameter overWrite: Indicates that any existing file at the destination path should first be deleted
     /// - returns: Returns a new file object representing the new location
     /// - throws: `PerfectError.FileError`
+    @discardableResult
     public func copyTo(path pth: String, overWrite: Bool = false) throws -> File {
         let destFile = File(pth)
         if destFile.exists {
@@ -250,7 +252,7 @@ public extension File {
         
         var bytes = try self.readSomeBytes(count: fileCopyBufferSize)
         while bytes.count > 0 {
-            let _ = try destFile.write(bytes: bytes)
+            try destFile.write(bytes: bytes)
             bytes = try self.readSomeBytes(count: fileCopyBufferSize)
         }
         
@@ -355,6 +357,7 @@ public extension File {
 	/// - parameter s: The string to write
 	/// - returns: Returns the number of bytes which were written
 	/// - throws: `PerfectError.FileError`
+    @discardableResult
 	public func write(string: String) throws -> Int {
 		return try write(bytes: Array(string.utf8))
 	}
@@ -364,6 +367,7 @@ public extension File {
 	/// - parameter dataPosition: The offset within `bytes` at which to begin writing.
 	/// - parameter length: The number of bytes to write.
 	/// - throws: `PerfectError.FileError`
+    @discardableResult
 	public func write(bytes: [UInt8], dataPosition: Int = 0, length: Int = Int.max) throws -> Int {
         let len = min(bytes.count - dataPosition, length)
 		let ptr = UnsafeMutablePointer<UInt8>(bytes).advanced(by: dataPosition)
