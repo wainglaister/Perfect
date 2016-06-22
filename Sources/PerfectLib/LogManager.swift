@@ -29,12 +29,12 @@ public struct Log:SysLogProtocol {
 	
 }
 
-
 protocol LogProtocol {
+    static func currLog() -> String
     
     static func perfectSyslog(priority p: Int32, _ msg: String, _ args: CVarArg...)
     
-    static func info(message msg: Any...)
+    static func info(message msg: CustomStringConvertible)
     
     static func warning(message msg: CustomStringConvertible, _ args: CVarArg...)
     
@@ -58,17 +58,30 @@ extension SysLogProtocol {
         withVaList(args) { vsyslog(p, msg, $0) }
     }
     
-    static func info(message msg: Any...) {
+    static func info(message msg: CustomStringConvertible) {
         perfectSyslog(priority: LOG_INFO, msg.description)
+    }
+    
+    static func info(message msg: String) {
+        self.info(message: msg.utf8)
     }
     
     static func warning(message msg: CustomStringConvertible, _ args: CVarArg...) {
         perfectSyslog(priority: LOG_WARNING, msg.description)
     }
     
+    static func warning(message msg: String, _ args: CVarArg...) {
+        self.warning(message: msg.utf8)
+    }
+    
     static func error(message msg: CustomStringConvertible, _ args: CVarArg...) {
         perfectSyslog(priority: LOG_ERR, msg.description)
     }
+    
+    static func error(message msg: String, _ args: CVarArg...) {
+        self.error(message: msg.utf8)
+    }
+    
     /*
      static func error(message msg: String, _ args: CVarArg...) {
      perfectSyslog(priority: LOG_ERR, msg)
@@ -77,11 +90,21 @@ extension SysLogProtocol {
     static func critical(message msg: CustomStringConvertible, _ args: CVarArg...) {
         perfectSyslog(priority: LOG_CRIT, msg.description)
     }
+    
+    static func critical(message msg: String, _ args: CVarArg...) {
+        self.critical(message: msg.utf8)
+    }
+    
     @noreturn
     static func terminal(message msg: CustomStringConvertible, _ args: CVarArg...) {
         perfectSyslog(priority: LOG_EMERG, msg.description)
         fatalError(msg.description)
     }
+    
+    static func terminal(message msg: String, _ args: CVarArg...) {
+        self.terminal(message: msg.utf8)
+    }
+    
 }
 
 protocol PrintLogProtocol: LogProtocol {
@@ -90,32 +113,52 @@ protocol PrintLogProtocol: LogProtocol {
 
 extension PrintLogProtocol {
     
+    static func currLog() -> String { return "printlog" }
+    
     static func perfectPrintLog(priority p: Int32, _ msg: String, _ args: CVarArg...) {
-        withVaList(args) { vsyslog(p, msg, $0) }
+        print(msg) 
     }
     
-    static func info(message msg: Any...) {
+    static func info(message msg: CustomStringConvertible) {
         perfectPrintLog(priority: LOG_INFO, msg.description)
+    }
+    
+    static func info(message msg: String) {
+        self.info(message: msg.utf8)
     }
     
     static func warning(message msg: CustomStringConvertible, _ args: CVarArg...) {
         perfectPrintLog(priority: LOG_WARNING, msg.description)
     }
     
+    static func warning(message msg: String) {
+        self.warning(message: msg.utf8)
+    }
+    
     static func error(message msg: CustomStringConvertible, _ args: CVarArg...) {
         perfectPrintLog(priority: LOG_ERR, msg.description)
     }
-    /*
-     static func error(message msg: String, _ args: CVarArg...) {
-     perfectSyslog(priority: LOG_ERR, msg)
-     }
-     */
+
+    static func error(message msg: String) {
+        self.error(message: msg.utf8)
+    }
+    
     static func critical(message msg: CustomStringConvertible, _ args: CVarArg...) {
         perfectPrintLog(priority: LOG_CRIT, msg.description)
     }
+    
+    static func critical(message msg: String) {
+        self.critical(message: msg.utf8)
+    }
+    
     @noreturn
     static func terminal(message msg: CustomStringConvertible, _ args: CVarArg...) {
         perfectPrintLog(priority: LOG_EMERG, msg.description)
         fatalError(msg.description)
     }
+
+    static func terminal(message msg: String) {
+        self.terminal(message: msg.utf8)
+    }
+    
 }
