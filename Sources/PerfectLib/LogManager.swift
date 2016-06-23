@@ -56,6 +56,7 @@ extension SysLogProtocol {
     
     static func perfectSyslog(priority p: Int32, _ msg: String, _ args: CVarArg...) {
         withVaList(args) { vsyslog(p, msg, $0) }
+        print("\(p): \(msg)")
     }
     
     static func info(message msg: CustomStringConvertible) {
@@ -116,7 +117,7 @@ extension PrintLogProtocol {
     static func currLog() -> String { return "printlog" }
     
     static func perfectPrintLog(priority p: Int32, _ msg: String, _ args: CVarArg...) {
-        print(msg) 
+        print("\(p): \(msg)")
     }
     
     static func info(message msg: CustomStringConvertible) {
