@@ -29,7 +29,7 @@ public struct Log:SysLogProtocol {
 	
 }
 
-protocol LogProtocol {
+public protocol LogProtocol {
     static func currLog() -> String
     
     static func perfectSyslog(priority p: Int32, _ msg: String, _ args: CVarArg...)
@@ -46,11 +46,11 @@ protocol LogProtocol {
     static func terminal(message msg: CustomStringConvertible, _ args: CVarArg...)
 }
 
-protocol SysLogProtocol: LogProtocol {
+public protocol SysLogProtocol: LogProtocol {
     
 }
 
-extension SysLogProtocol {
+public extension SysLogProtocol {
     
     static func currLog() -> String { return "syslog" }
     
@@ -108,11 +108,11 @@ extension SysLogProtocol {
     
 }
 
-protocol PrintLogProtocol: LogProtocol {
+public protocol PrintLogProtocol: LogProtocol {
     
 }
 
-extension PrintLogProtocol {
+public extension PrintLogProtocol {
     
     static func currLog() -> String { return "printlog" }
     
