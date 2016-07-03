@@ -35,7 +35,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	var httpServer: HTTPServer?
 	let serverDispatchQueue = dispatch_queue_create("HTTP Server Accept", DISPATCH_QUEUE_SERIAL)
 	
-	var serverPort: UInt16 = 8181 {
+	var serverPort: UInt16 = 9876 {
 		didSet {
 			NSUserDefaults.standardUserDefaults().setValue(Int(self.serverPort), forKey: KEY_SERVER_PORT)
 			NSUserDefaults.standardUserDefaults().synchronize()
@@ -57,7 +57,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	override init() {
 		let r = UInt16(NSUserDefaults.standardUserDefaults().integerForKey(KEY_SERVER_PORT))
 		if r == 0 {
-			self.serverPort = 8181
+			self.serverPort = 9876
 		} else {
 			self.serverPort = r
 		}
@@ -92,20 +92,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	}
 	
 	func serverIsRunning() -> Bool {
-		guard let s = self.httpServer else {
+		guard let _ = self.httpServer else {
 			return false
 		}
-		let tcp = NetTCP()
-		defer {
-			tcp.close()
-		}
-		
-		do {
-			try tcp.bind(s.serverPort, address: s.serverAddress)
-			return false
-		} catch {
-			
-		}
+//		let tcp = NetTCP()
+//		defer {
+//			tcp.close()
+//		}
+//		
+//		do {
+//			try tcp.bind(s.serverPort, address: s.serverAddress)
+//			return false
+//		} catch {
+//			
+//		}
 		return true
 	}
 	
@@ -122,7 +122,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 			do {
 				try Dir(documentRoot).create()
 				self.httpServer = HTTPServer(documentRoot: documentRoot)
-				try self.httpServer!.start(port, bindAddress: address)
+                
+                let sslCert = documentRoot + "fullchain.cer"
+                let sslKey = documentRoot + "private.key"
+                
+                if Dir(sslCert).exists() && Dir(sslKey).exists() {
+                    try self.httpServer!.start(port, bindAddress: address)
+                } else {
+                    try self.httpServer!.start(port, sslCert: sslCert, sslKey: sslKey, dhParams: nil, bindAddress: address)
+                }
 			} catch let e {
 				print("Exception in server run loop \(e) \(address):\(port)")
 			}
