@@ -9,6 +9,10 @@
 /* Begin PBXBuildFile section */
 		8B9352391D3EBA03009BAAE4 /* PerfectLib.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B9352381D3EBA03009BAAE4 /* PerfectLib.framework */; };
 		8B93523A1D3EBA03009BAAE4 /* PerfectLib.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8B9352381D3EBA03009BAAE4 /* PerfectLib.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		8BC106B81D52B2DA0037F7EE /* CryptoSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BC106B71D52B2DA0037F7EE /* CryptoSwift.framework */; };
+		8BC106BA1D52B2E30037F7EE /* MySQL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BC106B91D52B2E30037F7EE /* MySQL.framework */; };
+		8BC106BB1D52B2EA0037F7EE /* CryptoSwift.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8BC106B71D52B2DA0037F7EE /* CryptoSwift.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		8BC106BC1D52B2EF0037F7EE /* MySQL.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8BC106B91D52B2E30037F7EE /* MySQL.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D8E865791C14709000730D32 /* WindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E865781C14709000730D32 /* WindowController.swift */; };
 		F84242261BD9675C001EFF66 /* PerfectLib.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F84242251BD9675C001EFF66 /* PerfectLib.framework */; };
 		F84242291BD9691B001EFF66 /* main_fcgi.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84242281BD9691B001EFF66 /* main_fcgi.swift */; };
@@ -30,6 +34,8 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				8BC106BC1D52B2EF0037F7EE /* MySQL.framework in Embed Frameworks */,
+				8BC106BB1D52B2EA0037F7EE /* CryptoSwift.framework in Embed Frameworks */,
 				8B93523A1D3EBA03009BAAE4 /* PerfectLib.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
@@ -57,6 +63,8 @@
 
 /* Begin PBXFileReference section */
 		8B9352381D3EBA03009BAAE4 /* PerfectLib.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; name = PerfectLib.framework; path = "/Users/Developer/Library/Developer/Xcode/DerivedData/OnTime-gheuobqolvsamugwczeoenzfvymg/Build/Products/Debug/PerfectLib.framework"; sourceTree = "<absolute>"; };
+		8BC106B71D52B2DA0037F7EE /* CryptoSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CryptoSwift.framework; path = "../../../../../Library/Developer/Xcode/DerivedData/OnTime-gheuobqolvsamugwczeoenzfvymg/Build/Products/Release/CryptoSwift.framework"; sourceTree = "<group>"; };
+		8BC106B91D52B2E30037F7EE /* MySQL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MySQL.framework; path = "../../../../../Library/Developer/Xcode/DerivedData/OnTime-gheuobqolvsamugwczeoenzfvymg/Build/Products/Release/MySQL.framework"; sourceTree = "<group>"; };
 		D8E865781C14709000730D32 /* WindowController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WindowController.swift; sourceTree = "<group>"; };
 		F842421B1BD966FC001EFF66 /* perfectserverfcgi */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = perfectserverfcgi; sourceTree = BUILT_PRODUCTS_DIR; };
 		F84242251BD9675C001EFF66 /* PerfectLib.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PerfectLib.framework; path = "../../../Library/Developer/Xcode/DerivedData/Perfect-bmsnkpplajpulvabysklkvgjzgsj/Build/Products/Debug/PerfectLib.framework"; sourceTree = "<group>"; };
@@ -86,6 +94,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8BC106BA1D52B2E30037F7EE /* MySQL.framework in Frameworks */,
+				8BC106B81D52B2DA0037F7EE /* CryptoSwift.framework in Frameworks */,
 				8B9352391D3EBA03009BAAE4 /* PerfectLib.framework in Frameworks */,
 				F88B06901BDD49B1001FD0CD /* PerfectLib.framework in Frameworks */,
 			);
@@ -105,6 +115,8 @@
 		F84242121BD966FC001EFF66 = {
 			isa = PBXGroup;
 			children = (
+				8BC106B91D52B2E30037F7EE /* MySQL.framework */,
+				8BC106B71D52B2DA0037F7EE /* CryptoSwift.framework */,
 				8B9352381D3EBA03009BAAE4 /* PerfectLib.framework */,
 				F842421D1BD966FC001EFF66 /* PerfectServer */,
 				F88B06821BDD48DD001FD0CD /* PerfectServerHTTPApp */,

@@ -37,6 +37,8 @@ class DynamicLoader {
 	}
 	
 	func loadFramework(atPath: String) -> Bool {
+        self.logOut("Load framework at \(atPath)")
+        
 		let resolvedPath = atPath.stringByResolvingSymlinksInPath
 		let moduleName = resolvedPath.lastPathComponent.stringByDeletingPathExtension
 		let file = File(resolvedPath + "/" + moduleName)
@@ -44,10 +46,13 @@ class DynamicLoader {
 			let realPath = file.realPath()
 			return self.loadRealPath(realPath, moduleName: moduleName)
 		}
+        self.logOut("No file exists at \(resolvedPath + "/" + moduleName).")
 		return false
 	}
 	
 	func loadLibrary(atPath: String) -> Bool {
+        self.logOut("Load library at \(atPath)")
+        
 		let resolvedPath = atPath.stringByResolvingSymlinksInPath
 		let moduleName = resolvedPath.lastPathComponent.stringByDeletingPathExtension
 		let file = File(resolvedPath)
@@ -55,6 +60,7 @@ class DynamicLoader {
 			let realPath = file.realPath()
 			return self.loadRealPath(realPath, moduleName: moduleName)
 		}
+        self.logOut("No file exists at \(resolvedPath).")
 		return false
 	}
 	
@@ -70,14 +76,31 @@ class DynamicLoader {
 				f()
 				return true
 			} else {
-				print("Error loading \(realPath). Symbol \(symbolName) not found.")
+				self.logOut("Error loading \(realPath). Symbol \(symbolName) not found.")
 				dlclose(openRes)
 			}
 		} else {
-			print("Errno \(String.fromCString(dlerror())!)")
+			self.logOut("Errno \(String.fromCString(dlerror())!)")
 		}
 		return false
 	}
+    
+    func logOut(log: String) {
+        print(log)
+        
+        let basePath = PerfectServer.staticPerfectServer.homeDir()
+        let fileName = "DynamicLoader.txt"
+        let file = File(basePath + fileName)
+        defer {
+            file.close()
+        }
+        do {
+            try file.openAppend()
+            try file.writeString(log + "\n")
+        } catch {
+            print("\(error)")
+        }
+    }
 	
 }
 

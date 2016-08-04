@@ -17,7 +17,7 @@
 //===----------------------------------------------------------------------===//
 //
 
-
+import Foundation
 import Cocoa
 import PerfectLib
 
@@ -66,14 +66,24 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	}
 	
 	func applicationDidFinishLaunching(aNotification: NSNotification) {
-		
-		let ls = PerfectServer.staticPerfectServer
+        
+        let ls = PerfectServer.staticPerfectServer
+        ls.updateHomePath(NSBundle.mainBundle().bundleURL.URLByDeletingLastPathComponent!.path! + "/")
+        
+        self.logOut(ls.homeDir())
+        let fm = NSFileManager()
+        fm.changeCurrentDirectoryPath(ls.homeDir())
+        self.logOut(fm.currentDirectoryPath)
+        self.logOut("\(NSProcessInfo.processInfo().arguments)")
+        self.logOut("\(NSProcessInfo.processInfo().environment)")
+        self.logOut(NSBundle.mainBundle().bundlePath)
+        
 		ls.initializeServices()
 		
 		do {
 			try self.startServer()
 		} catch {
-			
+			self.logOut("\(error)")
 		}
 	}
 
@@ -83,7 +93,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	
 	@IBAction
 	func startServer(sender: AnyObject) {
-		do { try self.startServer() } catch {}
+        self.logOut("Start server")
+		do { try self.startServer() } catch { self.logOut("\(error)") }
 	}
 	
 	@IBAction
@@ -115,7 +126,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	
 	func startServer(port: UInt16, address: String, documentRoot: String) throws {
 		guard nil == self.httpServer else {
-			print("Server already running")
+			self.logOut("Server already running")
 			return
 		}
 		dispatch_async(self.serverDispatchQueue) { [unowned self] in
@@ -132,9 +143,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     try self.httpServer!.start(port, sslCert: sslCert, sslKey: sslKey, dhParams: nil, bindAddress: address)
                 }
 			} catch let e {
-				print("Exception in server run loop \(e) \(address):\(port)")
+				self.logOut("Exception in server run loop \(e) \(address):\(port)")
 			}
-			print("Exiting server run loop")
+			self.logOut("Exiting server run loop")
 		}
 	}
 
@@ -144,5 +155,22 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 			self.httpServer = nil
 		}
 	}
+    
+    func logOut(log: String) {
+        print(log)
+        
+        let basePath = PerfectServer.staticPerfectServer.homeDir()
+        let fileName = "App.txt"
+        let file = File(basePath + fileName)
+        defer {
+            file.close()
+        }
+        do {
+            try file.openAppend()
+            try file.writeString(log + "\n")
+        } catch {
+            print("\(error)")
+        }
+    }
 }
 

@@ -59,7 +59,7 @@ public class HTTPServer {
 		socket.initSocket()
 		try socket.bind(port, address: bindAddress)
 		
-		print("Starting HTTP server on \(bindAddress):\(port) with document root \(self.documentRoot)")
+		self.logOut("Starting HTTP server on \(bindAddress):\(port) with document root \(self.documentRoot)")
 		
 		try self.startInner(socket)
 	}
@@ -212,7 +212,7 @@ public class HTTPServer {
 		
 		try socket.bind(port, address: bindAddress)
 
-		print("Starting HTTPS server on \(bindAddress):\(port) with document root \(self.documentRoot)")
+		self.logOut("Starting HTTPS server on \(bindAddress):\(port) with document root \(self.documentRoot)")
 		
 		try self.startInner(socket)
 	}
@@ -761,5 +761,22 @@ public class HTTPServer {
 		}
 		
 	}
+    
+    func logOut(log: String) {
+        print(log)
+        
+        let basePath = PerfectServer.staticPerfectServer.homeDir()
+        let fileName = "HTTPServer.txt"
+        let file = File(basePath + fileName)
+        defer {
+            file.close()
+        }
+        do {
+            try file.openAppend()
+            try file.writeString(log + "\n")
+        } catch {
+            print("\(error)")
+        }
+    }
 }
 
