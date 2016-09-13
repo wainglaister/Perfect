@@ -45,6 +45,8 @@
 			<dict>
 				<key>NSExceptionRequiresForwardSecrecy</key>
 				<false/>
+				<key>NSExceptionMinimumTLSVersion</key>
+				<string>TLSv1.0</string>
 			</dict>
 		</dict>
 	</dict>
