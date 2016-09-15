@@ -41,13 +41,6 @@
 				<key>NSExceptionRequiresForwardSecrecy</key>
 				<false/>
 			</dict>
-			<key>send.one.com</key>
-			<dict>
-				<key>NSExceptionRequiresForwardSecrecy</key>
-				<false/>
-				<key>NSExceptionMinimumTLSVersion</key>
-				<string>TLSv1.0</string>
-			</dict>
 		</dict>
 	</dict>
 </dict>
